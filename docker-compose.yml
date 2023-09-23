@@ -1,0 +1,72 @@
+version: '3.7'
+
+x-comum-ao-minio: &comum-ao-minio
+  image: quay.io/minio/minio:RELEASE.2023-09-20T22-49-55Z
+  expose:
+    - "9000"
+    - "9001"
+  environment:
+    MINIO_ROOT_USER: admin
+    MINIO_ROOT_PASSWORD: password
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    interval: 30s
+    timeout: 20s
+    retries: 3
+
+services:
+  nina:
+    <<: *comum-ao-minio
+    command: server --console-address ":9001" http://nina/data{1...2}
+    hostname: nina
+    volumes:
+      - nina-1:/data1
+      - nina-2:/data2
+
+  pinta:
+    <<: *comum-ao-minio
+    command: server --console-address ":9001" http://pinta/data{1...2}
+    hostname: pinta
+    volumes:
+      - pinta-1:/data1
+      - pinta-2:/data2
+
+  santa:
+    <<: *comum-ao-minio
+    command: server --console-address ":9001" http://santa/data{1...2}
+    hostname: santa
+    volumes:
+      - santa-1:/data1
+      - santa-2:/data2
+
+  maria:
+    <<: *comum-ao-minio
+    command: server --console-address ":9001" http://maria/data{1...2}
+    hostname: maria
+    volumes:
+      - maria-1:/data1
+      - maria-2:/data2
+
+  nginx:
+    image: nginx:1.19.2-alpine
+    hostname: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    depends_on:
+      - nina
+      - pinta
+      - santa
+      - maria
+
+volumes:
+  nina-1:
+  nina-2:
+  pinta-1:
+  pinta-2:
+  santa-1:
+  santa-2:
+  maria-1:
+  maria-2:
