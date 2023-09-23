@@ -1,2 +1,3 @@
 # minio-nginx
-4 minio containers with nginx docker compose project.
+
+## This project objective is to design four minio containers with a nginx docker compose configuration for testing and development purposes.
